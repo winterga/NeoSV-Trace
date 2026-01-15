@@ -1,7 +1,7 @@
 from Bio.Seq import Seq
 
 
-def set_aa_seq(svfusion):
+def set_aa_seq(svfusion): # translates the svfusion transcript to amino acids (to be fed into NetMHCpan)
     """
     :function: translate the nucelotide sequence in svfusion to amino acid sequence
     :param: svfusion: a SVFusion class
@@ -35,7 +35,7 @@ def trim_to_3x(nt_sequence):
         return nt_sequence
 
 
-def generate_neoepitopes(svfusion, window_range):
+def generate_neoepitopes(svfusion, window_range): 
     """
     :function: cut the WT and MUT protein sequence by window_range, then get the MUT specific peptides
     :param svfusion: a SVFusion class
@@ -49,7 +49,7 @@ def generate_neoepitopes(svfusion, window_range):
     for window in window_range:
         wt_peptides = wt_peptides + cut_sequence(svfusion.cc_1.transcript.protein_sequence, window)
         wt_peptides = wt_peptides + cut_sequence(svfusion.cc_2.transcript.protein_sequence, window)
-    return list(set(mut_peptides)-set(wt_peptides))
+    return list(set(mut_peptides)-set(wt_peptides)) # so the whole time, we take out wildtype peptides from the mutant peptides for the given genes
 
 
 def cut_sequence(aa_sequence, window):

@@ -59,8 +59,8 @@ class CDSCollection(object):
             end = start + self.cut_length - 1
         else:
             end = self.comp_length - 1
-            # pyensembl coding_sequence_ranges does't not include the stop codon
-            # but coding_sequence includes the stop codon, so we should minus 3
+            # pyensembl coding_sequence_ranges does not include the stop codon
+            # but coding_sequence includes the stop codon, so we should subtract 3
             # additionally for 3' part transcript
             start = end - self.cut_length + 1 - 3
         return start, end

@@ -8,7 +8,7 @@ def get_longest_transcript(transcripts):
     return transcript
 
 
-def get_transcript(chrom, pos, ensembl, complete=True):
+def get_transcript(chrom, pos, ensembl, complete=True): # function to get transcript at breakpoint
     """
     :param chrom: chromosome with no chr of breakpoint
     :param pos: position of breakpoint

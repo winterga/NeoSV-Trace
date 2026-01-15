@@ -34,7 +34,7 @@ def main():
     sv_effects = [sv_to_sveffect(sv, ensembl, args.complete) for sv in svs]
     sv_effects_flat = [sv_effect_unit for sv_effect in sv_effects for sv_effect_unit in sv_effect]
     file_anno = os.path.join(args.outdir, args.prefix + '.anno.txt')
-    write_annot(file_anno, sv_effects_flat)
+    write_annot(file_anno, sv_effects_flat) # FIXME needs to incorporate adding sv_id so that it can be traced back from neoantigen file
 
     if not args.anno:
         # load the hla file and join the alleles by ,

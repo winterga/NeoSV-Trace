@@ -97,7 +97,7 @@ def vcf_load(filepath):
                     svvcf = VariantCallingFormat(chrom, pos, ref, alt)
                     svvcf_list.append(svvcf)
                 else:
-                    warn("File:\t{0}\tLine:\t{1}\nMalformed SV:\t{2}\t{3}\t{4}\t{5}".format(
+                    warn("File:\t{0}\tLine:\t{1}\nMalformed SV:\t{2}\t{3}\t{4}\t{5}".format( # FIXME gets output often -> look into later
                         filename, line_num, chrom, pos, ref, alt
                     ))
     if not svvcf_list:

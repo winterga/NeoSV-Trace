@@ -44,14 +44,14 @@ def create_arg_parser():
     args = parser.parse_args()
 
     if args.release != 'custom':
-        valid_range = [str(i) for i in range(54, 107)]
+        valid_range = [str(i) for i in range(54, 115)]
         if args.release not in valid_range:
-            sys.exit('Release number must be between 54 and 107.')
+            sys.exit('Release number must be between 54 and 115.')
     elif args.release == 'custom':
         if not args.gtffile or not args.cdnafile:
             sys.exit('A custom release is used, but no gtffile and cdnafile specified.')
     else:
-        sys.exit('--release must be a number between 54-107 or custom.')
+        sys.exit('--release must be a number between 54-115 or custom.')
 
     if not args.anno and not args.hlafile:
         sys.exit('No HLA file specified. The annotation-only mode could be used '
