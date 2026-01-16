@@ -1,4 +1,5 @@
 import os
+from sys import prefix
 from .args import create_arg_parser
 from .input import vcf_load, bedpe_load, hla_load, ensembl_load, get_window_range
 from .sv_utils import sv_pattern_infer_vcf, sv_pattern_infer_bedpe, remove_duplicate
@@ -29,12 +30,15 @@ def main():
         sys.exit('The input file must end with .vcf or .bedpe. Other format is not allowed.')
     # remove duplicated SVs
     svs = remove_duplicate(svs)
+    
+    # Get patient/sample ID from svfile
+    neoprefix = os.path.basename(args.svfile).split('.')[0]
 
     # annotate SVs and write to file_anno
     sv_effects = [sv_to_sveffect(sv, ensembl, args.complete) for sv in svs]
     sv_effects_flat = [sv_effect_unit for sv_effect in sv_effects for sv_effect_unit in sv_effect]
     file_anno = os.path.join(args.outdir, args.prefix + '.anno.txt')
-    write_annot(file_anno, sv_effects_flat) # FIXME needs to incorporate adding sv_id so that it can be traced back from neoantigen file
+    write_annot(file_anno, sv_effects_flat, prefix=neoprefix) # FIXME needs to incorporate adding sv_id so that it can be traced back from neoantigen file
 
     if not args.anno:
         # load the hla file and join the alleles by ,

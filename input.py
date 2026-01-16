@@ -11,28 +11,31 @@ class VariantCallingFormat(object):
     all components are in string format
     """
 
-    def __init__(self, chrom, pos, ref, alt):
+    def __init__(self, chrom, pos, ref, alt, sv_id=None):
         self.chrom = chrom
         self.pos = pos
         self.ref = ref
         self.alt = alt
+        self.sv_id = sv_id
 
     def __str__(self):
-        return "%s(chrom = %s, pos = %s, ref = %s, alt = %s)" % (
+        return "%s(chrom = %s, pos = %s, ref = %s, alt = %s, sv_id = %s)" % (
             self.__class__.__name__,
             self.chrom,
             self.pos,
             self.ref,
-            self.alt
+            self.alt,
+            self.sv_id
         )
 
     def __repr__(self):
-        return "%s(%s, %s, %s, %s)" % (
+        return "%s(%s, %s, %s, %s, %s)" % (
             self.__class__.__name__,
             self.chrom,
             self.pos,
             self.ref,
-            self.alt
+            self.alt,
+            self.sv_id
         )
 
 
@@ -58,18 +61,19 @@ class BedpeFormat(object):
         	self.strand1,
         	self.chrom2,
         	self.pos2,
-        	self.strand2
+        	self.strand2,
         )
 
     def __repr__(self):
-        return "%s(%s, %s, %s, %s, %s, %s)" % (
+        return "%s(%s, %s, %s, %s, %s, %s, %s)" % (
             self.__class__.__name__,
             self.chrom1,
         	self.pos1,
         	self.strand1,
         	self.chrom2,
         	self.pos2,
-        	self.strand2
+        	self.strand2,
+            self.sv_id
         )
 
 
@@ -91,10 +95,11 @@ def vcf_load(filepath):
                 tmpline = line.rstrip().split("\t")
                 chrom = tmpline[0].replace('chr', '')
                 pos = tmpline[1]
+                sv_id = tmpline[2] # FIXME possible index error if the input line is shorter than expected
                 ref = tmpline[3]
                 alt = tmpline[4].replace('chr', '')
                 if vcf_alt_format_check(alt):
-                    svvcf = VariantCallingFormat(chrom, pos, ref, alt)
+                    svvcf = VariantCallingFormat(chrom, pos, ref, alt, sv_id)
                     svvcf_list.append(svvcf)
                 else:
                     warn("File:\t{0}\tLine:\t{1}\nMalformed SV:\t{2}\t{3}\t{4}\t{5}".format( # FIXME gets output often -> look into later

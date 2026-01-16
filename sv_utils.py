@@ -84,8 +84,11 @@ def sv_pattern_infer_bedpe(bedpe):
         pattern = 4
         pos1 += 1
         pos2 += 1
+        
+        
+    sv_id = f"BEDPE_{chrom1}_{pos1}_{chrom2}_{pos2}_{pattern}"
 
-    return StructuralVariant(chrom1, pos1, chrom2, pos2, insertion, pattern)
+    return StructuralVariant(chrom1, pos1, chrom2, pos2, insertion, pattern, sv_id=sv_id)
 
 
 
