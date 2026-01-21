@@ -52,11 +52,11 @@ def write_fusion(filepath, svfusions, dict_neo, prefix):
                             str(focus_gene_name),
                             '' if bp1_dist_to_focus is None else str(bp1_dist_to_focus),
                             '' if bp2_dist_to_focus is None else str(bp2_dist_to_focus),
-                            '' if meta.get('junction_nt') is None else meta.get('junction_nt'),
-                            '' if meta.get('junction_aa') is None else meta.get('junction_aa'),
-                            '' if meta.get('num_pep_occurrences') is None else meta.get('num_pep_occurrences'),
-                            '' if meta.get('pep_start_aa') is None else meta.get('pep_start_aa'),
-                            '' if meta.get('pep_end_aa') is None else meta.get('pep_end_aa'),
+                            '' if meta.get('junction_nt') is None else str(meta.get('junction_nt')),
+                            '' if meta.get('junction_aa') is None else str(meta.get('junction_aa')),
+                            '' if meta.get('num_pep_occurrences') is None else str(meta.get('num_pep_occurrences')),
+                            '' if meta.get('pep_start_aa') is None else str(meta.get('pep_start_aa')),
+                            '' if meta.get('pep_end_aa') is None else str(meta.get('pep_end_aa')),
                             str(meta.get('spans_junction', False)),
                             neoepitope, allele, affinity, ba_rank, el_rank
                         ]
