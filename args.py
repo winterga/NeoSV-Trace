@@ -40,6 +40,9 @@ def create_arg_parser():
     parser.add_argument('--anno-only', dest='anno', action='store_true', default=False,
                         help='Only annotate SV without predicting neoantigens. If this argument is added,'
                         '--hla-file is not required, and you will only get the annotation result.')
+    
+    parser.add_argument('--focus-gene-id', dest='focus_gene_id', metavar='GENE', default='ENSG00000189283', 
+                        help='Gene ID from Ensembl used for breakpoint-distance columns in the neoantigen output. Default: ENSG00000189283 (FHIT).')
 
     args = parser.parse_args()
 

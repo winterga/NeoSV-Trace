@@ -101,3 +101,11 @@ def remove_duplicate(sv_list):
     sv_list_rmdup = list(ordered_dict.keys())
     print("{0} duplicated SVs were removed".format(len(sv_list)-len(sv_list_rmdup)))
     return sv_list_rmdup
+
+
+def dist_to_interval(focus_info, chrom, pos):
+    if str(chrom).replace('chr', '') != focus_info['chrom']:
+        return None
+    if focus_info['start'] <= pos <= focus_info['end']:
+        return 0
+    return min(abs(pos - focus_info['start']), abs(pos - focus_info['end']))

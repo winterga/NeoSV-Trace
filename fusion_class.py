@@ -59,9 +59,9 @@ class CDSCollection(object):
             end = start + self.cut_length - 1
         else:
             end = self.comp_length - 1
-            # pyensembl coding_sequence_ranges does not include the stop codon
+            # pyensembl coding_sequence_position_ranges does not include the stop codon
             # but coding_sequence includes the stop codon, so we should subtract 3
-            # additionally for 3' part transcript
+            # additionally for 3' part transcript - https://github.com/openvax/pyensembl/issues/176
             start = end - self.cut_length + 1 - 3
         return start, end
 
@@ -189,6 +189,9 @@ class SVFusion(object):
         gene_name_2 = self.cc_2.gene_name
         chrom_1, chrom_2 = self.sv.chrom1, self.sv.chrom2
         pos_1, pos_2 = self.sv.pos1, self.sv.pos2
-        return [chrom_1, str(pos_1), gene_name_1, tran_id_1,
-                chrom_2, str(pos_2), gene_name_2, tran_id_2,
+        
+        sv_id = '' if self.sv.sv_id is None else str(self.sv.sv_id)
+        
+        return [sv_id, chrom_1, str(pos_1), gene_name_1, tran_id_1,
+                chrom_2, str(pos_2), gene_name_2, tran_id_2, 
                 str(self.sv.pattern), self.sv.svtype, self.frame_effect]
