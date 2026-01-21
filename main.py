@@ -101,7 +101,7 @@ def main():
 
         # generate the final outfile
         file_fusion = os.path.join(args.outdir, args.prefix + '.neoantigen.txt')
-        write_fusion(file_fusion, sv_fusions, dict_epitope)
+        write_fusion(file_fusion, sv_fusions, dict_epitope, prefix=neoprefix)
 
 
 if __name__ == '__main__':
