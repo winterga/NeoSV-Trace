@@ -1,6 +1,7 @@
 import argparse
 import os
 import sys
+import shutil
 
 
 def create_arg_parser():
@@ -9,8 +10,12 @@ def create_arg_parser():
                         help='Structural variants in VCF or BEDPE format. NeoSV will discern the format based on the file suffix.')
     parser.add_argument('-hf', '--hla-file', dest='hlafile', metavar='HLA_FILE', default=None,
                         help='HLA alleles (resolution: 4 digit, e.g. HLA-A*02:01), with one allele per line.')
+    parser.add_argument('-mp', '--mhc-predictor', dest='mhc_predictor', choices=['netmhcpan', 'mhcflurry'], default='netmhcpan', 
+                        help='Specify which MHC binding predictor to use. Supported options: netmhcpan (default), mhcflurry.' "'mhcflurry' uses the mhcflurry-predict CLI (Python package).")
     parser.add_argument('-np', '--netmhc-path', dest='netmhc', metavar='NETMHC_PATH', default=None,
                         help='Absolute path to the netMHCpan execution file, please skip this parameter if netMHCpan has been added to your PATH.')
+    parser.add_argument('-fp', '--mhcflurry-path', dest='mhcflurry', metavar='MHCFLURRY_PATH', default=None,
+                        help='Absolute path to the MHCflurry installation directory, please skip this parameter if MHCflurry has been added to your PATH.')
     parser.add_argument('-o', '--out', dest='outdir', metavar='OUTDIR', required=True,
                         help="Folder for all result files. A new folder will be created if it does not exist.")
     parser.add_argument('-p', '--prefix', dest='prefix', metavar='PREFIX', default='sample',
@@ -41,6 +46,7 @@ def create_arg_parser():
                         help='Only annotate SV without predicting neoantigens. If this argument is added,'
                         '--hla-file is not required, and you will only get the annotation result.')
 
+
     args = parser.parse_args()
 
     if args.release != 'custom':
@@ -56,9 +62,17 @@ def create_arg_parser():
     if not args.anno and not args.hlafile:
         sys.exit('No HLA file specified. The annotation-only mode could be used '
                  '(--annotation-only) if you do not have HLA information.')
-    if not args.anno and not args.netmhc:
-        sys.exit('NetMHCpan not specified. The annotation-only mode could be used '
-                 '(--annotation-only) if you do not want to predict neoantigen.')
+    if not args.anno:
+        if args.mhc_predictor == 'netmhcpan':
+            if not args.netmhc:
+                args.netmhc = shutil.which('netMHCpan') or shutil.which('netMHCpan-4.1')
+            if not args.netmhc:
+                sys.exit('netMHCpan path not specified and netMHCpan not found in PATH. Please provide the path using -np or --netmhc-path argument, use --mhc-predictor mhcflurry, or use --anno-only.')
+        elif args.mhc_predictor == 'mhcflurry':
+            if args.mhcflurry is None:
+                args.mhcflurry = shutil.which('mhcflurry-predict')
+            if not args.mhcflurry:
+                sys.exit('mhcflurry-predict not found in PATH. Please provide the path using -fp or --mhcflurry-path argument, use --mhc-predictor netmhcpan, or use --anno-only.')
     if not os.path.exists(args.outdir):
         os.mkdir(args.outdir)
 

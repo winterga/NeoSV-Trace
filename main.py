@@ -6,7 +6,7 @@ from .sv_utils import sv_pattern_infer_vcf, sv_pattern_infer_bedpe, remove_dupli
 from .annotation_utils import sv_to_sveffect
 from .fusion_utils import sv_to_svfusion
 from .sequence_utils import set_nt_seq, set_aa_seq, generate_neoepitopes
-from .netMHC import netmhc_pep_prep, netmhc_run, netmhc_reload, netmhc_filter
+from .mhc import mhc_predict_pep_prep, mhc_predict_run, mhc_predict_reload, mhc_filter
 from .output import write_annot, write_fusion
 
 
@@ -56,19 +56,19 @@ def main():
             sv_fusion.aa_sequence = set_aa_seq(sv_fusion)
             sv_fusion.neoepitopes = generate_neoepitopes(sv_fusion, window_range)
 
-        # predict binding affinity using netMHC
-        file_netmhc_in = os.path.join(args.outdir, args.prefix + '.net.in.txt')
-        file_netmhc_out = os.path.join(args.outdir, args.prefix + '.net.out.txt')
+        # predict binding affinity using MHC predictor
+        file_mhc_in = os.path.join(args.outdir, args.prefix + '.net.in.txt')
+        file_mhc_out = os.path.join(args.outdir, args.prefix + '.net.out.txt')
         if sv_fusions:
-            netmhc_pep_prep(file_netmhc_in, sv_fusions)
-            netmhc_run(args.netmhc, file_netmhc_in, hla_alleles, file_netmhc_out)
+            mhc_predict_pep_prep(file_mhc_in, sv_fusions)
+            mhc_predict_run(args.netmhc, file_mhc_in, hla_alleles, file_mhc_out)
         else:
-            open(file_netmhc_in, 'w').close()
-            open(file_netmhc_out, 'w').close()
+            open(file_mhc_in, 'w').close()
+            open(file_mhc_out, 'w').close()
 
         # reload and filter the neoepitopes based on netMHC result
-        dict_epitope = netmhc_reload(file_netmhc_out)
-        dict_epitope = netmhc_filter(dict_epitope, args.aff_cutoff, args.ba_rank_cutoff, args.el_rank_cutoff)
+        dict_epitope = mhc_predict_reload(args.netmhc, file_mhc_out)
+        dict_epitope = mhc_filter(dict_epitope, args.aff_cutoff, args.ba_rank_cutoff, args.el_rank_cutoff)
 
         # generate the final outfile
         file_fusion = os.path.join(args.outdir, args.prefix + '.neoantigen.txt')
