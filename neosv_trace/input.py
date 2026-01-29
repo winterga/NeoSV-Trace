@@ -45,16 +45,17 @@ class BedpeFormat(object):
     all components are in string format
     """
 
-    def __init__(self, chrom1, pos1, strand1, chrom2, pos2, strand2):
+    def __init__(self, chrom1, pos1, strand1, chrom2, pos2, strand2, sv_id=None):
         self.chrom1 = chrom1
         self.pos1 = pos1
         self.strand1 = strand1
         self.chrom2 = chrom2
         self.pos2 = pos2
         self.strand2 = strand2
+        self.sv_id = sv_id
 
     def __str__(self):
-        return "%s(chrom1 = %s, pos1 = %s, strand1 = %s, chrom2 = %s, pos2 = %s, strand2 = %s)" % (
+        return "%s(chrom1 = %s, pos1 = %s, strand1 = %s, chrom2 = %s, pos2 = %s, strand2 = %s, sv_id = %s)" % (
             self.__class__.__name__,
             self.chrom1,
         	self.pos1,
@@ -62,6 +63,7 @@ class BedpeFormat(object):
         	self.chrom2,
         	self.pos2,
         	self.strand2,
+            self.sv_id
         )
 
     def __repr__(self):
@@ -145,7 +147,8 @@ def bedpe_load(filepath):
             pos2 = tmpline[header.index('start2')]
             strand1 = tmpline[header.index('strand1')]
             strand2 = tmpline[header.index('strand2')]
-            bedpe = BedpeFormat(chrom1, pos1, strand1, chrom2, pos2, strand2)
+            sv_id = tmpline[header.index('sv_id')] if 'sv_id' in header else None
+            bedpe = BedpeFormat(chrom1, pos1, strand1, chrom2, pos2, strand2, sv_id)
             bedpe_list.append(bedpe)
 
     if not bedpe_list:
