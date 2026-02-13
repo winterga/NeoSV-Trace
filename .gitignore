@@ -1,6 +1,6 @@
 input/
 output/
 *.egg-info/
-neosv_trace/__pycache__/
+neosv_trace/__pycache__/*
 
 
