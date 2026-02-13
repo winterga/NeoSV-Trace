@@ -2,7 +2,7 @@ import os
 import sys
 from .args import create_arg_parser
 from .input import vcf_load, bedpe_load, hla_load, ensembl_load, get_window_range
-from .sv_utils import sv_pattern_infer_vcf, sv_pattern_infer_bedpe, remove_duplicate, dist_to_interval
+from .sv_utils import sv_pattern_infer_vcf, sv_pattern_infer_bedpe, remove_duplicate
 from .annotation_utils import sv_to_sveffect
 from .fusion_utils import sv_to_svfusion
 from .sequence_utils import set_nt_seq, set_aa_seq, generate_neoepitopes_with_meta, generate_neoepitopes
@@ -18,22 +18,22 @@ def main():
     
     # get coordinates for the focus gene (default: FHIT) to support breakpoint-distance output columns
 
-    focus_gene_id = args.focus_gene_id
-    focus_info = None
+    # focus_gene_id = args.focus_gene_id
+    # focus_info = None
     
-    try: 
-        gene = ensembl.gene_by_id(focus_gene_id)
-        gene_name = ensembl.gene_name_of_gene_id(focus_gene_id)
-        focus_info = {
-            'gene': gene_name,
-            'chrom': str(gene.contig).replace('chr', ''),
-            'start': int(gene.start),
-            'end': int(gene.end)
-        }
+    # try: 
+    #     gene = ensembl.gene_by_id(focus_gene_id)
+    #     gene_name = ensembl.gene_name_of_gene_id(focus_gene_id)
+    #     focus_info = {
+    #         'gene': gene_name,
+    #         'chrom': str(gene.contig).replace('chr', ''),
+    #         'start': int(gene.start),
+    #         'end': int(gene.end)
+    #     }
         
-    except Exception:
-        focus_info = None
-        print(f"Warning: Could not find gene ID {focus_gene_id} in the reference. Breakpoint-distance columns will be empty.")
+    # except Exception:
+    #     focus_info = None
+    #     print(f"Warning: Could not find gene ID {focus_gene_id} in the reference. Breakpoint-distance columns will be empty.")
 
     if args.svfile.endswith('.vcf'):
         # load vcf file and transform SVs into VariantCallingFormat class
@@ -74,17 +74,22 @@ def main():
             sv_fusion.nt_sequence = set_nt_seq(sv_fusion)
             sv_fusion.aa_sequence = set_aa_seq(sv_fusion)
 
-            sv_fusion.neoepitopes, sv_fusion.neoepitope_meta = generate_neoepitopes_with_meta(sv_fusion, window_range)
-            sv_fusion.focus_info = focus_info
+            # sv_fusion.neoepitopes, sv_fusion.neoepitope_meta = generate_neoepitopes_with_meta(sv_fusion, window_range)
+
+            # Generate candidate peptides first. Metadata (incl. genomic origin) is computed lazily
+            # only for peptides that pass MHC filters and are written to output.
+            sv_fusion.neoepitopes = generate_neoepitopes(sv_fusion, window_range)
+            sv_fusion.neoepitope_meta = {} 
+            # sv_fusion.focus_info = focus_info
             
-            if focus_info is not None:
-                # distance is 0 if breakpoint lies inside the gene interval; otherwise min distance to edge
+            # if focus_info is not None:
+            #     # distance is 0 if breakpoint lies inside the gene interval; otherwise min distance to edge
                 
-                sv_fusion.bp1_dist_to_focus = dist_to_interval(focus_info=focus_info, chrom=sv_fusion.sv.chrom1, pos=sv_fusion.sv.pos1)
-                sv_fusion.bp2_dist_to_focus = dist_to_interval(focus_info=focus_info, chrom=sv_fusion.sv.chrom2, pos=sv_fusion.sv.pos2)
-            else:
-                sv_fusion.bp1_dist_to_focus = None
-                sv_fusion.bp2_dist_to_focus = None
+            #     sv_fusion.bp1_dist_to_focus = dist_to_interval(focus_info=focus_info, chrom=sv_fusion.sv.chrom1, pos=sv_fusion.sv.pos1)
+            #     sv_fusion.bp2_dist_to_focus = dist_to_interval(focus_info=focus_info, chrom=sv_fusion.sv.chrom2, pos=sv_fusion.sv.pos2)
+            # else:
+            #     sv_fusion.bp1_dist_to_focus = None
+            #     sv_fusion.bp2_dist_to_focus = None
         
         # predict binding affinity using MHC predictor
         file_mhc_in = os.path.join(args.outdir, args.prefix + '.net.in.txt')

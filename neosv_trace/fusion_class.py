@@ -103,7 +103,8 @@ class CDSCollection(object):
     def comp_length(self):
         return len(self.transcript.coding_sequence)
 
-
+# An object to store the fusion of two transcripts, including the SV information, the CDS collections of 
+# both sides, and the final nt and aa sequence of the fusion transcript.
 class SVFusion(object):
     def __init__(self, sv, cdscollection_1, cdscollection_2):
         self.sv = sv
@@ -142,6 +143,67 @@ class SVFusion(object):
     def is_empty(self):
         if not self.cc_1 or not self.cc_2:
             return True
+        
+    def get_transcript(self):
+        if self.cc_1.strand == '+': return self.cc_1.transcript
+        else: return self.cc_2.transcript
+        
+
+    def _cdscollection_positions(self, cc, cc_side: int):
+        """Return a list of genomic positions for the truncated CDSCollection in transcript coding order.
+
+        Each entry is a dict with keys: chrom, pos, feature, gene, transcript_id.
+        """
+        if cc is None:
+            return []
+        chrom = str(cc.transcript.contig).replace('chr', '')
+        gene = cc.gene_name
+        tid = cc.transcript_id
+
+        # Ensure exon/CDS pieces are ordered 5'->3' for the transcript
+        cdslist = list(cc.cdslist or [])
+        if cc.strand == '+':
+            cdslist.sort(key=lambda c: (c.start, c.end))
+        else:
+            # on - strand, 5'->3' is descending genomic coordinate
+            cdslist.sort(key=lambda c: (c.start, c.end), reverse=True)
+
+        out = []
+        for cds in cdslist:
+            if cc.strand == '+':
+                rng = range(int(cds.start), int(cds.end) + 1)
+            else:
+                rng = range(int(cds.end), int(cds.start) - 1, -1)
+            for p in rng:
+                out.append({
+                    'type': 'GENOMIC',
+                    'chrom': chrom,
+                    'pos': int(p),
+                    'feature': 'CDS',  # provenance: drawn from transcript CDS pieces
+                    'gene': gene,
+                    'transcript_id': tid,
+                    'strand': cc.strand,
+                    'cc_side': int(cc_side),
+                })
+        return out
+
+    def build_cds_origin(self):
+        """Build per-nucleotide origin labels for nt_sequence_cds.
+
+        - Native transcript-derived nucleotides are mapped back to genomic positions.
+        - Inserted junction sequence nucleotides are labeled as type='INS'.
+
+        Result is stored on `self.cds_origin` (list, length == len(self.nt_sequence_cds)).
+        """
+        left_cc, right_cc = (self.cc_1, self.cc_2) if self.cc_1.part == '5' else (self.cc_2, self.cc_1)
+
+        left = self._cdscollection_positions(left_cc, 1 if left_cc is self.cc_1 else 2)
+        right = self._cdscollection_positions(right_cc, 1 if right_cc is self.cc_1 else 2)
+
+        ins = [{'type': 'INS'} for _ in range(len(self.nt_sequence_ins))]
+
+        self.cds_origin = left + ins + right
+        return self.cds_origin
 
     @property
     def nt_sequence_ins(self):

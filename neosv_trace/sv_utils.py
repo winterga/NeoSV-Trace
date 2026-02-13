@@ -49,6 +49,8 @@ def sv_pattern_infer_vcf(svvcf):
     # [p[t
     pattern4 = re.compile(r'\[.+?\[[ATCGatcg]+')
 
+    sv_id = svvcf.sv_id if svvcf.sv_id is not None else "NA"
+
     if pattern1.search(svvcf.alt):
         pattern = 1
     elif pattern2.search(svvcf.alt):
@@ -57,7 +59,7 @@ def sv_pattern_infer_vcf(svvcf):
         pattern = 3
     else:
         pattern = 4
-    return StructuralVariant(chrom1, pos1, chrom2, pos2, insertion, pattern)
+    return StructuralVariant(chrom1, pos1, chrom2, pos2, insertion, pattern, sv_id=sv_id)
 
 
 def sv_pattern_infer_bedpe(bedpe):
@@ -103,9 +105,9 @@ def remove_duplicate(sv_list):
     return sv_list_rmdup
 
 
-def dist_to_interval(focus_info, chrom, pos):
-    if str(chrom).replace('chr', '') != focus_info['chrom']:
-        return None
-    if focus_info['start'] <= pos <= focus_info['end']:
-        return 0
-    return min(abs(pos - focus_info['start']), abs(pos - focus_info['end']))
+# def dist_to_interval(focus_info, chrom, pos):
+#     if str(chrom).replace('chr', '') != focus_info['chrom']:
+#         return None
+#     if focus_info['start'] <= pos <= focus_info['end']:
+#         return 0
+#     return min(abs(pos - focus_info['start']), abs(pos - focus_info['end']))
