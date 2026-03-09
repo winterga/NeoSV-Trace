@@ -25,6 +25,7 @@ def netmhc_run(netmhcpath, peppath, alleles, outpath):
     :return: None
     """
     print("Running netMHCpan.")
+    print(f"Command: {netmhcpath} -a {alleles} -f {peppath} -inptype 1 -BA > {outpath}")
     cmd = netmhcpath \
         + ' -a ' + alleles \
         + ' -f ' + peppath \
