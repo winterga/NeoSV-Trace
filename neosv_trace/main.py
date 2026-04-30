@@ -7,7 +7,7 @@ from .annotation_utils import sv_to_sveffect
 from .fusion_utils import sv_to_svfusion
 from .sequence_utils import set_nt_seq, set_aa_seq, generate_neoepitopes_with_meta, generate_neoepitopes
 from .mhc import mhc_predict_pep_prep, mhc_predict_run, mhc_predict_reload, mhc_filter
-from .output import write_annot, write_fusion
+from .output import write_annot, write_fusion, write_all_neopeptides
 
 
 def main():
@@ -91,6 +91,10 @@ def main():
             #     sv_fusion.bp1_dist_to_focus = None
             #     sv_fusion.bp2_dist_to_focus = None
         
+        # save all candidate neopeptides (unfiltered) for immunoediting analysis
+        file_all_neopeptides = os.path.join(args.outdir, args.prefix + '.all_neopeptides.txt')
+        write_all_neopeptides(file_all_neopeptides, sv_fusions, prefix=neoprefix)
+
         # predict binding affinity using MHC predictor
         file_mhc_in = os.path.join(args.outdir, args.prefix + '.net.in.txt')
         file_mhc_out = os.path.join(args.outdir, args.prefix + '.net.out.txt')

@@ -1,4 +1,5 @@
 import re
+from .sequence_utils import junction_indices, find_peptide_occurrences
 
 
 def write_annot(filepath, sveffects, prefix):
@@ -18,6 +19,47 @@ def write_annot(filepath, sveffects, prefix):
             row = [prefix, sv_id] + sveffect.output()
             f.write('\t'.join('' if x is None else str(x) for x in row) + '\n')
             
+def write_all_neopeptides(filepath, svfusions, prefix):
+    """Write all candidate neopeptides before HLA binding filtering.
+
+    One row per (SVFusion, neopeptide). Junction metadata is computed cheaply
+    (no per-nucleotide cds_origin vectors) so this is safe to call for every sample.
+    Used downstream to build contingency matrices for immunoediting analysis.
+    """
+    header_cols = [
+        'prefix',
+        'sv_id',
+        'chrom1', 'pos1', 'gene1', 'transcript_id1',
+        'chrom2', 'pos2', 'gene2', 'transcript_id2',
+        'svpattern', 'svtype', 'frameshift',
+        'junction_nt', 'junction_aa',
+        'spans_junction',
+        'neopeptide', 'pep_length',
+    ]
+    with open(filepath, 'w') as f:
+        f.write('\t'.join(header_cols) + '\n')
+        for svfusion in svfusions:
+            base = svfusion.output()  # [sv_id, chrom1, pos1, gene1, tx1, chrom2, pos2, gene2, tx2, svpattern, svtype, frameshift]
+            try:
+                j_nt, j_aa = junction_indices(svfusion)
+            except Exception:
+                j_nt, j_aa = None, None
+
+            for neopeptide in svfusion.neoepitopes:
+                if j_aa is not None:
+                    starts = find_peptide_occurrences(svfusion.aa_sequence, neopeptide)
+                    spans = any(start < j_aa < (start + len(neopeptide)) for start in starts)
+                else:
+                    spans = None
+
+                row = (
+                    [prefix]
+                    + base
+                    + [j_nt, j_aa, spans, neopeptide, len(neopeptide)]
+                )
+                f.write('\t'.join('' if x is None else str(x) for x in row) + '\n')
+
+
 def write_fusion(filepath, svfusions, dict_neo, prefix):
     """
     Write fusion-derived neoantigens with provenance columns.
