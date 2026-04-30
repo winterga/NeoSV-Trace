@@ -177,24 +177,20 @@ def ensembl_load(release, gtf_file, cdna_file, cache_dir):
     """
     Load PyEnsembl genome annotation.
 
-    For standard Ensembl releases, avoid re-downloading/re-indexing
-    if the SQLite database already exists. This prevents database
-    locking when running many NeoSV-Trace jobs in parallel.
+    Important:
+    For standard Ensembl releases, this assumes the release has already
+    been downloaded and indexed once. It avoids calling download/index
+    during each sample run, which prevents SQLite database locking when
+    running samples in parallel.
     """
     if cache_dir:
         os.environ["PYENSEMBL_CACHE_DIR"] = cache_dir
 
     if release != "custom":
         ensembl = EnsemblRelease(int(release))
-
-        db_path = ensembl.database_path
-
-        if not os.path.exists(db_path):
-            print(f"[INFO] PyEnsembl database not found. Creating: {db_path}")
-            ensembl.download()
-            ensembl.index()
-        else:
-            print(f"[INFO] Using existing PyEnsembl database: {db_path}")
+        print(f"[INFO] Using PyEnsembl release {release}")
+        print(f"[INFO] PYENSEMBL_CACHE_DIR={os.environ.get('PYENSEMBL_CACHE_DIR')}")
+        return ensembl
 
     else:
         ensembl = Genome(
@@ -204,15 +200,10 @@ def ensembl_load(release, gtf_file, cdna_file, cache_dir):
             annotation_name="User-defined",
         )
 
-        db_path = ensembl.database_path
-
-        if not os.path.exists(db_path):
-            print(f"[INFO] Custom PyEnsembl database not found. Creating: {db_path}")
-            ensembl.index()
-        else:
-            print(f"[INFO] Using existing custom PyEnsembl database: {db_path}")
-
-    return ensembl
+        # For custom references, only index manually in a separate setup step.
+        # Avoid indexing during parallel sample processing.
+        print("[INFO] Using custom PyEnsembl genome")
+        return ensembl
 
 def get_window_range(window):
     """
