@@ -175,26 +175,44 @@ def hla_load(filepath):
 
 def ensembl_load(release, gtf_file, cdna_file, cache_dir):
     """
-    :param release: the release number in EMSEMBL, could be custom
-    :param gtf_file: the path of gtf file if release == custom
-    :param cdna_file: the path of cdna file if release == custom
-    :param cache_dir: directory for pyensembl downloading
-    :return: a Genome class in pyensembl
+    Load PyEnsembl genome annotation.
+
+    For standard Ensembl releases, avoid re-downloading/re-indexing
+    if the SQLite database already exists. This prevents database
+    locking when running many NeoSV-Trace jobs in parallel.
     """
     if cache_dir:
-        os.environ['PYENSEMBL_CACHE_DIR'] = cache_dir
-    if release != 'custom':
-        ensembl = EnsemblRelease(int(release))
-        ensembl.download()
-        ensembl.index()
-    else:
-        ensembl = Genome(gtf_path_or_url=gtf_file,
-                         transcript_fasta_paths_or_urls=cdna_file,
-                         reference_name='User-defined',
-                         annotation_name='User-defined')
-        ensembl.index()
-    return ensembl
+        os.environ["PYENSEMBL_CACHE_DIR"] = cache_dir
 
+    if release != "custom":
+        ensembl = EnsemblRelease(int(release))
+
+        db_path = ensembl.database_path
+
+        if not os.path.exists(db_path):
+            print(f"[INFO] PyEnsembl database not found. Creating: {db_path}")
+            ensembl.download()
+            ensembl.index()
+        else:
+            print(f"[INFO] Using existing PyEnsembl database: {db_path}")
+
+    else:
+        ensembl = Genome(
+            gtf_path_or_url=gtf_file,
+            transcript_fasta_paths_or_urls=cdna_file,
+            reference_name="User-defined",
+            annotation_name="User-defined",
+        )
+
+        db_path = ensembl.database_path
+
+        if not os.path.exists(db_path):
+            print(f"[INFO] Custom PyEnsembl database not found. Creating: {db_path}")
+            ensembl.index()
+        else:
+            print(f"[INFO] Using existing custom PyEnsembl database: {db_path}")
+
+    return ensembl
 
 def get_window_range(window):
     """
