@@ -49,9 +49,9 @@ def create_arg_parser():
     args = parser.parse_args()
 
     if args.release != 'custom':
-        valid_range = [str(i) for i in range(54, 115)]
+        valid_range = [str(i) for i in range(54, 116)]
         if args.release not in valid_range:
-            sys.exit('Release number must be between 54 and 115.')
+            sys.exit('Release number must be between 54 and 115 (inclusive).')
     elif args.release == 'custom':
         if not args.gtffile or not args.cdnafile:
             sys.exit('A custom release is used, but no gtffile and cdnafile specified.')
