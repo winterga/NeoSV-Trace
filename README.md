@@ -465,7 +465,7 @@ The BA and EL rank cutoffs are generally more robust than the raw IC50 because t
 
 ## Ensembl Reference
 
-NeoSV-Trace uses [PyEnsembl](https://github.com/openvax/pyensembl) to retrieve transcript structures, exon boundaries, and coding sequences. You must download the appropriate Ensembl release for your genome build before running.
+NeoSV-Trace uses [PyEnsembl](https://github.com/openvax/pyensembl) to retrieve transcript structures, exon boundaries, and coding sequences. You must download the appropriate Ensembl release for your genome build before running. It is recommended to use a PyEnsembl version >2.3.13. If using PyEnsembl <=v2.3.13, [neosv_trace/fusion_class.py must be changed.](https://github.com/winterga/NeoSV-Trace/blob/8e676d8e016c1d1ec4128f28b953d8b27d8a489c/neosv_trace/fusion_class.py#L62-L63)
 
 ### Supported releases and genome builds
 
