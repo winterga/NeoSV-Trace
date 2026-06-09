@@ -22,7 +22,7 @@ def create_arg_parser():
                         help="This prefix will be added to all output files.")
     parser.add_argument('-r', '--release', dest='release', metavar='RELEASE', default='75',
                         help='Which reference (ENSEMBL release) you want to use. Ensembl releases that'
-                             'correspond to hg18/NCBI36, hg19/GRCh37, hg38/GRCh38 are 54, 75, 95.'
+                             'correspond to hg18/NCBI36, hg19/GRCh37, hg38/GRCh38 are 54, 75, 95 (or 115).'
                              'If your data are from other species(custom), please download the gtf '
                              'file and the cdna file from ENSEMBL website ftp://ftp.ensembl.org/pub'
                              ' and specify them using --gtf-file and --cdna-file.')

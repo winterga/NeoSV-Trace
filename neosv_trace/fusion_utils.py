@@ -157,6 +157,11 @@ def sv_to_svfusion(sv, ensembl):
     else:
         cdscollection_1 = None
         cdscollection_2 = None
+
+    
+    print(f"Length of cdscollection_1: {len(cdscollection_1.cdslist) if cdscollection_1 is not None else 0}")
+    print(f"cds pos 1: {sv.pos1}")
+    print(f"cds pos 2: {sv.pos2}")
     return SVFusion(sv, cdscollection_1, cdscollection_2)
 
 

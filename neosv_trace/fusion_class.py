@@ -59,10 +59,12 @@ class CDSCollection(object):
             end = start + self.cut_length - 1
         else:
             end = self.comp_length - 1
-            # pyensembl coding_sequence_position_ranges does not include the stop codon
+            # if using pyensembl v2.3.13 or below, coding_sequence_position_ranges does not include the stop codon
             # but coding_sequence includes the stop codon, so we should subtract 3
-            # additionally for 3' part transcript - https://github.com/openvax/pyensembl/issues/176
-            start = end - self.cut_length + 1 - 3
+            # additionally for 3' part transcript - https://github.com/openvax/pyensembl/issues/176. After pyensembl
+            # v2.3.13, do not subtract 3, as this will erroneously generate neopeptides that are not dependent on structural
+            # variants.
+            start = end - self.cut_length + 1 # - 3 # uncomment if using pyensembl v2.3.13 or below
         return start, end
 
     @property

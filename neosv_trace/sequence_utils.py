@@ -45,10 +45,16 @@ def generate_neoepitopes(svfusion, window_range):
     mut_peptides = []
     for window in window_range:
         mut_peptides = mut_peptides + cut_sequence(svfusion.aa_sequence, window)
+
+    print("AA sequence:", svfusion.aa_sequence)
+    print("ISMGPLSPF in mut:", "ISMGPLSPF" in svfusion.aa_sequence)
+
     wt_peptides = []
     for window in window_range:
         wt_peptides = wt_peptides + cut_sequence(svfusion.cc_1.transcript.protein_sequence, window)
         wt_peptides = wt_peptides + cut_sequence(svfusion.cc_2.transcript.protein_sequence, window)
+
+    print("ISMGPLSPF in WT:", "ISMGPLSPF" in wt_peptides)
     return list(set(mut_peptides)-set(wt_peptides)) # so the whole time, we take out wildtype peptides from the mutant peptides for the given genes
 
 def junction_indices(svfusion):
