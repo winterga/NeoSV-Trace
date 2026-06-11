@@ -72,18 +72,24 @@ def get_noncds_range(transcript):
         else:
             ncds_ranges.append((utr3_start, utr3_end))
     else:
-        utr5_start = cds_ranges[0][1] + 1
+        # For minus-strand transcripts, PyEnsembl returns coding_sequence_position_ranges
+        # in ascending genomic order (same as plus strand), so cds_ranges[0] is the
+        # genomically lowest exon = transcript 3' end, and cds_ranges[-1] is the
+        # genomically highest exon = transcript 5' end.
+        # 5' UTR sits above the highest CDS exon; 3' UTR sits below the lowest CDS exon.
+        # Introns between exons are the same genomic gaps as plus strand.
+        utr5_start = cds_ranges[-1][1] + 1
         utr5_end = transcript.end
         if utr5_start > utr5_end:
             ncds_ranges.append((0, 0))
         else:
             ncds_ranges.append((utr5_start, utr5_end))
         for i in range(1, len(cds_ranges)):
-            cds_start = cds_ranges[i][1] + 1
-            cds_end = cds_ranges[i-1][0] - 1
+            cds_start = cds_ranges[i-1][1] + 1
+            cds_end = cds_ranges[i][0] - 1
             ncds_ranges.append((cds_start, cds_end))
         utr3_start = transcript.start
-        utr3_end = cds_ranges[-1][0] - 1
+        utr3_end = cds_ranges[0][0] - 1
         if utr3_start > utr3_end:
             ncds_ranges.append((0, 0))
         else:
@@ -119,9 +125,11 @@ def get_intron_range(transcript):
             intron_end = exon_ranges[i][0] - 1
             intron_ranges.append((intron_start, intron_end))
     else:
+        # transcript.exons is also returned in ascending genomic order by PyEnsembl,
+        # so intron gaps are computed identically to plus strand.
         for i in range(1, len(exon_ranges)):
-            intron_start = exon_ranges[i][1] + 1
-            intron_end = exon_ranges[i-1][0] - 1
+            intron_start = exon_ranges[i-1][1] + 1
+            intron_end = exon_ranges[i][0] - 1
             intron_ranges.append((intron_start, intron_end))
     if intron_ranges:
         return intron_ranges
